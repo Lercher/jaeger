@@ -33,6 +33,8 @@ import (
 	agentApp "github.com/jaegertracing/jaeger/cmd/agent/app"
 	agentRep "github.com/jaegertracing/jaeger/cmd/agent/app/reporter"
 	agentGrpcRep "github.com/jaegertracing/jaeger/cmd/agent/app/reporter/grpc"
+	agentHttpRep "github.com/jaegertracing/jaeger/cmd/agent/app/reporter/http"
+	agentTchanRep "github.com/jaegertracing/jaeger/cmd/agent/app/reporter/tchannel"
 	"github.com/jaegertracing/jaeger/cmd/all-in-one/setupcontext"
 	collectorApp "github.com/jaegertracing/jaeger/cmd/collector/app"
 	"github.com/jaegertracing/jaeger/cmd/docs"
@@ -115,6 +117,7 @@ by default uses only in-memory database.`,
 			aOpts := new(agentApp.Builder).InitFromViper(v)
 			repOpts := new(agentRep.Options).InitFromViper(v, logger)
 			grpcBuilder := agentGrpcRep.NewConnBuilder().InitFromViper(v)
+			httpBuilder := agentHttpRep.NewConnBuilder().InitFromViper(v)
 			cOpts := new(collectorApp.CollectorOptions).InitFromViper(v)
 			qOpts := new(queryApp.QueryOptions).InitFromViper(v, logger)
 
@@ -134,6 +137,7 @@ by default uses only in-memory database.`,
 			agentMetricsFactory := metricsFactory.Namespace(metrics.NSOptions{Name: "agent", Tags: nil})
 			builders := map[agentRep.Type]agentApp.CollectorProxyBuilder{
 				agentRep.GRPC: agentApp.GRPCCollectorProxyBuilder(grpcBuilder),
+				agentRep.HTTP: agentApp.HTTPCollectorProxyBuilder(httpBuilder),
 			}
 			cp, err := agentApp.CreateCollectorProxy(agentApp.ProxyBuilderOptions{
 				Options: *repOpts,
@@ -183,6 +187,7 @@ by default uses only in-memory database.`,
 		agentGrpcRep.AddFlags,
 		collectorApp.AddFlags,
 		tCollector.AddFlags,
+		agentHttpRep.AddFlags,
 		queryApp.AddFlags,
 		strategyStoreFactory.AddFlags,
 	)

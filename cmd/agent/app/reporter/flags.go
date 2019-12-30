@@ -26,13 +26,15 @@ import (
 )
 
 const (
-	// Whether to use grpc or tchannel reporter.
+	// Whether to use grpc, tchannel or http reporter.
 	reporterType = "reporter.type"
 	// AgentTagsDeprecated is a configuration property name for adding process tags to incoming spans.
 	AgentTagsDeprecated = "jaeger.tags"
 	agentTags           = "agent.tags"
 	// GRPC is name of gRPC reporter.
 	GRPC Type = "grpc"
+	// HTTP is name of http reporter.
+	HTTP Type = "http"
 )
 
 // Type defines type of reporter.
@@ -46,7 +48,7 @@ type Options struct {
 
 // AddFlags adds flags for Options.
 func AddFlags(flags *flag.FlagSet) {
-	flags.String(reporterType, string(GRPC), fmt.Sprintf("Reporter type to use e.g. %s", string(GRPC)))
+	flags.String(reporterType, string(GRPC), fmt.Sprintf("Reporter type to use: %s, %s", string(GRPC), string(HTTP)))
 	if !setupcontext.IsAllInOne() {
 		flags.String(AgentTagsDeprecated, "", "(deprecated) see --"+agentTags)
 		flags.String(agentTags, "", "One or more tags to be added to the Process tags of all spans passing through this agent. Ex: key1=value1,key2=${envVar:defaultValue}")

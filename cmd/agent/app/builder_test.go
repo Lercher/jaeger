@@ -37,6 +37,8 @@ import (
 	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter/grpc"
 	"github.com/jaegertracing/jaeger/tchannel/agent/app/reporter/tchannel"
 	"github.com/jaegertracing/jaeger/tchannel/collector/app"
+	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter/http"
+	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter/tchannel"
 	"github.com/jaegertracing/jaeger/thrift-gen/baggage"
 	"github.com/jaegertracing/jaeger/thrift-gen/jaeger"
 	"github.com/jaegertracing/jaeger/thrift-gen/sampling"
@@ -236,11 +238,13 @@ func TestCreateCollectorProxy(t *testing.T) {
 
 		rOpts := new(reporter.Options).InitFromViper(v, zap.NewNop())
 		grpcBuilder := grpc.NewConnBuilder().InitFromViper(v)
+		httpBuilder := http.NewBuilder().InitFromViper(v)
 
 		metricsFactory := metricstest.NewFactory(time.Microsecond)
 
 		builders := map[reporter.Type]CollectorProxyBuilder{
 			reporter.GRPC: GRPCCollectorProxyBuilder(grpcBuilder),
+			reporter.HTTP: HTTPCollectorProxyBuilder(httpBuilder),
 		}
 		proxy, err := CreateCollectorProxy(ProxyBuilderOptions{
 			Options: *rOpts,
@@ -260,9 +264,11 @@ func TestCreateCollectorProxy(t *testing.T) {
 
 func TestCreateCollectorProxy_UnknownReporter(t *testing.T) {
 	grpcBuilder := grpc.NewConnBuilder()
+	httpBuilder := http.NewConnBuilder()
 
 	builders := map[reporter.Type]CollectorProxyBuilder{
 		reporter.GRPC: GRPCCollectorProxyBuilder(grpcBuilder),
+		reporter.HTTP: HTTPCollectorProxyBuilder(httpBuilder),
 	}
 	proxy, err := CreateCollectorProxy(ProxyBuilderOptions{}, builders)
 	assert.Nil(t, proxy)

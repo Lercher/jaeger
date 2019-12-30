@@ -28,6 +28,8 @@ import (
 	"github.com/jaegertracing/jaeger/cmd/agent/app"
 	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter"
 	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter/grpc"
+	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter/http"
+	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter/tchannel"
 	"github.com/jaegertracing/jaeger/cmd/docs"
 	"github.com/jaegertracing/jaeger/cmd/flags"
 	"github.com/jaegertracing/jaeger/pkg/config"
@@ -55,8 +57,10 @@ func main() {
 
 			rOpts := new(reporter.Options).InitFromViper(v, logger)
 			grpcBuilder := grpc.NewConnBuilder().InitFromViper(v)
+			httpBuilder := http.NewConnBuilder().InitFromViper(v)
 			builders := map[reporter.Type]app.CollectorProxyBuilder{
 				reporter.GRPC: app.GRPCCollectorProxyBuilder(grpcBuilder),
+				reporter.HTTP: app.HTTPCollectorProxyBuilder(httpBuilder),
 			}
 			cp, err := app.CreateCollectorProxy(app.ProxyBuilderOptions{
 				Options: *rOpts,
@@ -97,6 +101,7 @@ func main() {
 		app.AddFlags,
 		reporter.AddFlags,
 		grpc.AddFlags,
+		http.AddFlags,
 	)
 
 	if err := command.Execute(); err != nil {
