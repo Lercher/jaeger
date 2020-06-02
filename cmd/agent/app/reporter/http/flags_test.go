@@ -29,20 +29,20 @@ func TestBindFlags(t *testing.T) {
 
 	tests := []struct {
 		flags   []string
-		builder Builder
+		builder ConnBuilder
 	}{
 		{flags: []string{
-			"--reporter.http.endpoint=http://1.2.3.4:555",
+			"--reporter.http.url=http://1.2.3.4:555",
 		},
 			// default timeout case
-			builder: Builder{CollectorEndpoint: "http://1.2.3.4:555", CollectorResponseTimeout: defaultCollectorResponseTimeout},
+			builder: ConnBuilder{CollectorURLs: []string{"http://1.2.3.4:555"}, CollectorResponseTimeout: defaultCollectorResponseTimeout},
 		},
 		{
 			flags: []string{
-				"--reporter.http.endpoint=http://1.2.3.4:666",
-				"--reporter.http.response.timeout=3s",
+				"--reporter.http.url=http://1.2.3.4:666",
+				"--reporter.http.response.timeout=15s",
 			},
-			builder: Builder{CollectorEndpoint: "http://1.2.3.4:666", CollectorResponseTimeout: 3 * time.Second},
+			builder: ConnBuilder{CollectorURLs: []string{"http://1.2.3.4:666"}, CollectorResponseTimeout: 15 * time.Second},
 		},
 	}
 
@@ -60,7 +60,7 @@ func TestBindFlags(t *testing.T) {
 
 		err := command.ParseFlags(test.flags)
 		require.NoError(t, err)
-		b := Builder{}
+		b := ConnBuilder{}
 		b.InitFromViper(v)
 		assert.Equal(t, test.builder, b)
 	}

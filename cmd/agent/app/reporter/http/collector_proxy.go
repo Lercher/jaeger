@@ -16,6 +16,7 @@ package http
 
 import (
 	"errors"
+	"net/url"
 
 	"github.com/uber/jaeger-lib/metrics"
 	"go.uber.org/zap"
@@ -32,10 +33,17 @@ type ProxyBuilder struct {
 
 // NewCollectorProxy creates ProxyBuilder
 func NewCollectorProxy(builder *ConnBuilder, agentTags map[string]string, mFactory metrics.Factory, logger *zap.Logger) (*ProxyBuilder, error) {
-	if len(builder.CollectorHostPorts) != 1 {
-		return nil, errors.New("exactly one host:port for " + collectorHostPort + " is required")
+	if len(builder.CollectorURLs) != 1 {
+		return nil, errors.New("exactly one host:port for " + collectorURL + " is required")
 	}
-	r := NewReporter(builder.CollectorHostPorts[0], builder.CollectorResponseTimeout, agentTags, logger)
+
+	url, err := sanitize(builder.CollectorURLs[0])
+	if err != nil {
+		return nil, err
+	}
+
+	logger.Info("collector connection via http/s", zap.String("url", url), zap.Duration("timeout", builder.CollectorResponseTimeout))
+	r := NewReporter(url, builder.CollectorResponseTimeout, agentTags, logger)
 
 	httpMetrics := mFactory.Namespace(metrics.NSOptions{Name: "", Tags: map[string]string{"protocol": "http"}})
 
@@ -43,6 +51,18 @@ func NewCollectorProxy(builder *ConnBuilder, agentTags map[string]string, mFacto
 		reporter: reporter.WrapWithMetrics(r, httpMetrics),
 		manager:  nil,
 	}, nil
+}
+
+func sanitize(u string) (string, error) {
+	url, err := url.Parse(u)
+	if err != nil {
+		return "", err
+	}
+
+	if url.Path == "" {
+		url.Path = "/api/traces"
+	}
+	return url.String(), nil
 }
 
 // GetReporter returns Reporter

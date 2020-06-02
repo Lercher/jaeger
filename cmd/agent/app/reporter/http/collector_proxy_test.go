@@ -21,23 +21,17 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/uber/jaeger-lib/metrics"
 	"go.uber.org/zap"
-
-	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter"
 )
 
 func TestCollectorProxy(t *testing.T) {
 
-	cfg := &Builder{CollectorEndpoint: "http://localhost:14268/api/traces"}
+	cfg := &ConnBuilder{CollectorURLs: []string{"http://localhost:14268/api/traces"}}
 	mFactory := metrics.NullFactory
 	logger := zap.NewNop()
 
-	proxy, err := NewCollectorProxy(cfg, mFactory, logger)
+	proxy, err := NewCollectorProxy(cfg, nil, mFactory, logger)
 	require.NoError(t, err)
 	assert.NotNil(t, proxy)
 	assert.NotNil(t, proxy.GetReporter())
 	// assert.NotNil(t, proxy.GetManager())
-
-	r, _ := cfg.CreateReporter(logger)
-	assert.Equal(t, reporter.WrapWithMetrics(r, mFactory), proxy.GetReporter())
-
 }

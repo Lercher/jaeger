@@ -20,8 +20,8 @@ import (
 
 // ConnBuilder Struct to hold configurations
 type ConnBuilder struct {
-	// CollectorHostPorts is list of http://host:port Jaeger Collectors.
-	CollectorHostPorts []string `yaml:"collectorHostPorts"`
+	// CollectorURLs is list of http://host:port Jaeger Collectors.
+	CollectorURLs []string `yaml:"collectorUrls"`
 
 	// Timeout for http response from collector
 	CollectorResponseTimeout time.Duration `yaml:"collectorResponseTimeout"`

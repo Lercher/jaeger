@@ -24,22 +24,22 @@ import (
 
 const (
 	httpPrefix                      = "reporter.http"
-	collectorHostPort               = httpPrefix + ".host-port"
+	collectorURL                    = httpPrefix + ".url"
 	collectorResponseTimeout        = httpPrefix + ".response.timeout"
 	defaultCollectorResponseTimeout = 3 * time.Second
 )
 
 // AddFlags adds flags for Builder.
 func AddFlags(flags *flag.FlagSet) {
-	flags.String(collectorHostPort, "", "string representing http://host:port of a static collector to connect to directly (N.B.: standard port for http is 14268)")
+	flags.String(collectorURL, "", "url of a static collector to connect to directly (N.B.: standard is http://server:14268/api/traces), if path is missing /api/traces is appended")
 	flags.Duration(collectorResponseTimeout, defaultCollectorResponseTimeout, "sets the timeout for http response from collector")
 }
 
 // InitFromViper initializes Builder with properties retrieved from Viper.
 func (b *ConnBuilder) InitFromViper(v *viper.Viper) *ConnBuilder {
-	hostPorts := v.GetString(collectorHostPort)
-	if hostPorts != "" {
-		b.CollectorHostPorts = strings.Split(hostPorts, ",")
+	urls := v.GetString(collectorURL)
+	if urls != "" {
+		b.CollectorURLs = strings.Split(urls, ",")
 	}
 	b.CollectorResponseTimeout = v.GetDuration(collectorResponseTimeout)
 

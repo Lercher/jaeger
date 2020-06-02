@@ -19,32 +19,18 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
 	"gopkg.in/yaml.v2"
 )
 
 var yamlConfig = `
-collectorEndpoint: http://127.0.0.1:14268
+collectorUrls: [http://127.0.0.1:14268]
 `
 
 func TestBuilderFromConfig(t *testing.T) {
 
-	b := Builder{}
+	b := ConnBuilder{}
 	err := yaml.Unmarshal([]byte(yamlConfig), &b)
 	require.NoError(t, err)
 
-	r, err := b.CreateReporter(zap.NewNop())
-	require.NoError(t, err)
-	assert.NotNil(t, r)
-	assert.Equal(t, "http://127.0.0.1:14268", r.url)
-
-}
-
-func TestBuilderEndpointFailure(t *testing.T) {
-
-	b := Builder{}
-
-	_, err := b.CreateReporter(zap.NewNop())
-	require.Error(t, err)
-
+	assert.Equal(t, "http://127.0.0.1:14268", b.CollectorURLs[0])
 }

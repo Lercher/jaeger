@@ -38,7 +38,6 @@ type Reporter struct {
 
 // NewReporter creates new Http-based Reporter
 func NewReporter(url string, timeout time.Duration, agentTags map[string]string, logger *zap.Logger) *Reporter {
-
 	r := &Reporter{
 		url:       url,
 		agentTags: makeModelKeyValue(agentTags),

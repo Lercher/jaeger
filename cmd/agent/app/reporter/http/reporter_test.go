@@ -71,7 +71,7 @@ var _ = startHTTPServer()
 func TestJaegerHttpReporterSuccess(t *testing.T) {
 
 	logger := zap.NewNop()
-	r := NewReporter("http://127.0.0.1:9001/api/traces", 5*time.Second, logger)
+	r := NewReporter("http://127.0.0.1:9001/api/traces", 5*time.Second, nil, logger)
 
 	err := submitTestJaegerBatch(r)
 	require.NoError(t, err)
@@ -100,7 +100,7 @@ func TestJaegerHttpReporterFailure(t *testing.T) {
 
 	for _, test := range tests {
 
-		r := NewReporter(test.endpoint, test.timeout, logger)
+		r := NewReporter(test.endpoint, test.timeout, nil, logger)
 		err := submitTestJaegerBatch(r)
 
 		// require reporter to throw some error as these are all failure scenarios
