@@ -34,7 +34,6 @@ import (
 	agentRep "github.com/jaegertracing/jaeger/cmd/agent/app/reporter"
 	agentGrpcRep "github.com/jaegertracing/jaeger/cmd/agent/app/reporter/grpc"
 	agentHttpRep "github.com/jaegertracing/jaeger/cmd/agent/app/reporter/http"
-	agentTchanRep "github.com/jaegertracing/jaeger/cmd/agent/app/reporter/tchannel"
 	"github.com/jaegertracing/jaeger/cmd/all-in-one/setupcontext"
 	collectorApp "github.com/jaegertracing/jaeger/cmd/collector/app"
 	"github.com/jaegertracing/jaeger/cmd/docs"

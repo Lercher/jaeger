@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/apache/thrift/lib/go/thrift"
+	"github.com/jaegertracing/jaeger/model"
 	"github.com/jaegertracing/jaeger/thrift-gen/jaeger"
 	"github.com/jaegertracing/jaeger/thrift-gen/zipkincore"
 	"go.uber.org/zap"
@@ -30,25 +31,34 @@ import (
 
 // Reporter forwards received spans to central collector tier over Http
 type Reporter struct {
-	url    string
-	client *http.Client
-	logger *zap.Logger
+	url       string
+	client    *http.Client
+	agentTags []model.KeyValue
+	logger    *zap.Logger
 }
 
 // NewReporter creates new Http-based Reporter
-func NewReporter(url string, timeout time.Duration, logger *zap.Logger) *Reporter {
+func NewReporter(url string, timeout time.Duration, agentTags map[string]string, logger *zap.Logger) *Reporter {
 
 	r := &Reporter{
-		url:    url,
-		client: &http.Client{Timeout: timeout},
-		logger: logger,
+		url:       url,
+		agentTags: makeModelKeyValue(agentTags),
+		client:    &http.Client{Timeout: timeout},
+		logger:    logger,
 	}
 
 	return r
 }
 
+// Close closes the client
+func (r *Reporter) Close() error {
+	r.client.CloseIdleConnections()
+	return nil
+}
+
 // EmitBatch implements EmitBatch() of Reporter
 func (r *Reporter) EmitBatch(batch *jaeger.Batch) error {
+	// r.agentTags ignored currently, see cmd/agent/app/reporter/grpc/reporter.go
 
 	body, err := serializeThrift(batch)
 	if err != nil {
@@ -102,4 +112,30 @@ func (r *Reporter) EmitZipkinBatch(spans []*zipkincore.Span) error {
 	r.logger.Info("Zipkin spans currently not supported with http reporter")
 	return nil
 
+}
+
+// addTags appends jaeger tags for the agent to every span it sends to the collector.
+func addProcessTags(spans []*model.Span, process *model.Process, agentTags []model.KeyValue) ([]*model.Span, *model.Process) {
+	if len(agentTags) == 0 {
+		return spans, process
+	}
+	if process != nil {
+		process.Tags = append(process.Tags, agentTags...)
+	}
+	for _, span := range spans {
+		if span.Process != nil {
+			span.Process.Tags = append(span.Process.Tags, agentTags...)
+		}
+	}
+	return spans, process
+}
+
+func makeModelKeyValue(agentTags map[string]string) []model.KeyValue {
+	tags := make([]model.KeyValue, 0, len(agentTags))
+	for k, v := range agentTags {
+		tag := model.String(k, v)
+		tags = append(tags, tag)
+	}
+
+	return tags
 }

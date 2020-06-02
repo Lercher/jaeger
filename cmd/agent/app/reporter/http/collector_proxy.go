@@ -15,6 +15,9 @@
 package http
 
 import (
+	"errors"
+	"io"
+
 	"github.com/uber/jaeger-lib/metrics"
 	"go.uber.org/zap"
 
@@ -29,11 +32,11 @@ type ProxyBuilder struct {
 }
 
 // NewCollectorProxy creates ProxyBuilder
-func NewCollectorProxy(builder *Builder, mFactory metrics.Factory, logger *zap.Logger) (*ProxyBuilder, error) {
-	r, err := builder.CreateReporter(logger)
-	if err != nil {
-		return nil, err
+func NewCollectorProxy(builder *ConnBuilder, agentTags map[string]string, mFactory metrics.Factory, logger *zap.Logger) (*ProxyBuilder, error) {
+	if len(builder.CollectorHostPorts) != 1 {
+		return nil, errors.New("exactly one host:port for " + collectorHostPort + " is required")
 	}
+	r := NewReporter(builder.CollectorHostPorts[0], builder.CollectorResponseTimeout, agentTags, logger)
 
 	httpMetrics := mFactory.Namespace(metrics.NSOptions{Name: "", Tags: map[string]string{"protocol": "http"}})
 
@@ -51,4 +54,9 @@ func (b ProxyBuilder) GetReporter() reporter.Reporter {
 // GetManager returns manager
 func (b ProxyBuilder) GetManager() configmanager.ClientConfigManager {
 	return b.manager
+}
+
+// Close closes connections used by proxy.
+func (b ProxyBuilder) Close() error {
+	return b.reporter.(io.Closer).Close()
 }

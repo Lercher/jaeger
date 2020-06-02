@@ -17,34 +17,21 @@ package http
 import (
 	"time"
 
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
+	"github.com/jaegertracing/jaeger/pkg/config/tlscfg"
 )
 
-// Builder struct to hold configurations
-type Builder struct {
-
-	// Endpoint for connecting to Jaeger Collector
-	CollectorEndpoint string `yaml:"collectorEndpoint"`
+// ConnBuilder Struct to hold configurations
+type ConnBuilder struct {
+	// CollectorHostPorts is list of host:port Jaeger Collectors.
+	CollectorHostPorts []string `yaml:"collectorHostPorts"`
 
 	// Timeout for http response from collector
 	CollectorResponseTimeout time.Duration `yaml:"collectorResponseTimeout"`
+
+	TLS tlscfg.Options
 }
 
-// NewBuilder creates a new reporter builder
-func NewBuilder() *Builder {
-	return &Builder{}
-}
-
-// CreateReporter creates a http-based reporter
-func (b *Builder) CreateReporter(logger *zap.Logger) (*Reporter, error) {
-
-	if b.CollectorEndpoint == "" {
-		return nil, errors.New("Collector Endpoint can not be empty")
-	}
-
-	reporter := NewReporter(b.CollectorEndpoint, b.CollectorResponseTimeout, logger)
-
-	return reporter, nil
-
+// NewConnBuilder creates a new grpc connection builder.
+func NewConnBuilder() *ConnBuilder {
+	return &ConnBuilder{}
 }

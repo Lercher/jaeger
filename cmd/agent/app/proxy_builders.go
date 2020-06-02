@@ -16,11 +16,19 @@ package app
 
 import (
 	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter/grpc"
+	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter/http"
 )
 
 // GRPCCollectorProxyBuilder creates CollectorProxyBuilder for GRPC reporter
 func GRPCCollectorProxyBuilder(builder *grpc.ConnBuilder) CollectorProxyBuilder {
 	return func(opts ProxyBuilderOptions) (proxy CollectorProxy, err error) {
 		return grpc.NewCollectorProxy(builder, opts.AgentTags, opts.Metrics, opts.Logger)
+	}
+}
+
+// HTTPCollectorProxyBuilder creates CollectorProxyBuilder for GRPC reporter
+func HTTPCollectorProxyBuilder(builder *http.ConnBuilder) CollectorProxyBuilder {
+	return func(opts ProxyBuilderOptions) (proxy CollectorProxy, err error) {
+		return http.NewCollectorProxy(builder, opts.AgentTags, opts.Metrics, opts.Logger)
 	}
 }

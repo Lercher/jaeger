@@ -16,30 +16,31 @@ package http
 
 import (
 	"flag"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
 )
 
 const (
-	httpPrefix                      = "reporter.http."
-	collectorEndPoint               = httpPrefix + "endpoint"
-	collectorResponseTimeout        = httpPrefix + "response.timeout"
-	defaultCollectorResponseTimeout = 1 * time.Second
+	httpPrefix                      = "reporter.http"
+	collectorHostPort               = httpPrefix + ".host-port"
+	collectorResponseTimeout        = httpPrefix + ".response.timeout"
+	defaultCollectorResponseTimeout = 3 * time.Second
 )
 
 // AddFlags adds flags for Builder.
 func AddFlags(flags *flag.FlagSet) {
-
-	flags.String(collectorEndPoint, "", "http endpoint of collector to connect to")
+	flags.String(collectorHostPort, "", "string representing host:port of a static collector to connect to directly")
 	flags.Duration(collectorResponseTimeout, defaultCollectorResponseTimeout, "sets the timeout for http response from collector")
-
 }
 
 // InitFromViper initializes Builder with properties retrieved from Viper.
-func (b *Builder) InitFromViper(v *viper.Viper) *Builder {
-
-	b.CollectorEndpoint = v.GetString(collectorEndPoint)
+func (b *ConnBuilder) InitFromViper(v *viper.Viper) *ConnBuilder {
+	hostPorts := v.GetString(collectorHostPort)
+	if hostPorts != "" {
+		b.CollectorHostPorts = strings.Split(hostPorts, ",")
+	}
 	b.CollectorResponseTimeout = v.GetDuration(collectorResponseTimeout)
 
 	return b

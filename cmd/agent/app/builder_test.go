@@ -38,7 +38,6 @@ import (
 	"github.com/jaegertracing/jaeger/tchannel/agent/app/reporter/tchannel"
 	"github.com/jaegertracing/jaeger/tchannel/collector/app"
 	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter/http"
-	"github.com/jaegertracing/jaeger/cmd/agent/app/reporter/tchannel"
 	"github.com/jaegertracing/jaeger/thrift-gen/baggage"
 	"github.com/jaegertracing/jaeger/thrift-gen/jaeger"
 	"github.com/jaegertracing/jaeger/thrift-gen/sampling"
@@ -238,7 +237,7 @@ func TestCreateCollectorProxy(t *testing.T) {
 
 		rOpts := new(reporter.Options).InitFromViper(v, zap.NewNop())
 		grpcBuilder := grpc.NewConnBuilder().InitFromViper(v)
-		httpBuilder := http.NewBuilder().InitFromViper(v)
+		httpBuilder := http.NewConnBuilder().InitFromViper(v)
 
 		metricsFactory := metricstest.NewFactory(time.Microsecond)
 
