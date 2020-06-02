@@ -33,8 +33,8 @@ Delegates to `sampling.Manager` to get the sampling strategy.
 remote `tcollector` service. Then the server converts
 thrift response from sampling manager into JSON and responds to clients.
 
-## Outbound http connection to collector
+## Outbound http Connection to Collector
 
 ````sh
-./agent --reporter.http.url http://lpod.fritz.box:14268/api/traces --reporter.type http
+./agent  --reporter.type http --reporter.http.url http://lpod.fritz.box:14268
 ````
