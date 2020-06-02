@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -50,12 +49,6 @@ func NewReporter(url string, timeout time.Duration, agentTags map[string]string,
 	return r
 }
 
-// Close closes the client
-func (r *Reporter) Close() error {
-	r.client.CloseIdleConnections()
-	return nil
-}
-
 // EmitBatch implements EmitBatch() of Reporter
 func (r *Reporter) EmitBatch(batch *jaeger.Batch) error {
 	// r.agentTags ignored currently, see cmd/agent/app/reporter/grpc/reporter.go
@@ -83,11 +76,12 @@ func (r *Reporter) EmitBatch(batch *jaeger.Batch) error {
 		return err
 	}
 
-	io.Copy(ioutil.Discard, resp.Body)
+	buf := new(bytes.Buffer)
+	io.Copy(buf, resp.Body)
 	resp.Body.Close()
 
 	if resp.StatusCode >= http.StatusBadRequest {
-		r.logger.Error(fmt.Sprintf("Error from collector - Response Code :  %d", resp.StatusCode))
+		r.logger.Error("Error from collector", zap.Int("statuscode", resp.StatusCode), zap.String("body", buf.String()), zap.String("url", r.url))
 		return fmt.Errorf("error from collector: %d", resp.StatusCode)
 	}
 

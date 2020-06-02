@@ -31,7 +31,7 @@ const (
 
 // AddFlags adds flags for Builder.
 func AddFlags(flags *flag.FlagSet) {
-	flags.String(collectorHostPort, "", "string representing host:port of a static collector to connect to directly")
+	flags.String(collectorHostPort, "", "string representing http://host:port of a static collector to connect to directly (N.B.: standard port for http is 14268)")
 	flags.Duration(collectorResponseTimeout, defaultCollectorResponseTimeout, "sets the timeout for http response from collector")
 }
 

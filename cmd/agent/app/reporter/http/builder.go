@@ -16,19 +16,15 @@ package http
 
 import (
 	"time"
-
-	"github.com/jaegertracing/jaeger/pkg/config/tlscfg"
 )
 
 // ConnBuilder Struct to hold configurations
 type ConnBuilder struct {
-	// CollectorHostPorts is list of host:port Jaeger Collectors.
+	// CollectorHostPorts is list of http://host:port Jaeger Collectors.
 	CollectorHostPorts []string `yaml:"collectorHostPorts"`
 
 	// Timeout for http response from collector
 	CollectorResponseTimeout time.Duration `yaml:"collectorResponseTimeout"`
-
-	TLS tlscfg.Options
 }
 
 // NewConnBuilder creates a new grpc connection builder.

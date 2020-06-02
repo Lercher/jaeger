@@ -16,7 +16,6 @@ package http
 
 import (
 	"errors"
-	"io"
 
 	"github.com/uber/jaeger-lib/metrics"
 	"go.uber.org/zap"
@@ -58,5 +57,5 @@ func (b ProxyBuilder) GetManager() configmanager.ClientConfigManager {
 
 // Close closes connections used by proxy.
 func (b ProxyBuilder) Close() error {
-	return b.reporter.(io.Closer).Close()
+	return nil
 }
