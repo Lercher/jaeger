@@ -36,3 +36,4 @@ cmd/opentelemetry-collector/cmd/collector/opentelemetry-collector-*
 cmd/opentelemetry-collector/cmd/agent/opentelemetry-agent-*
 cmd/opentelemetry-collector/cmd/ingester/opentelemetry-ingester-*
 __pycache__
+*.exe
